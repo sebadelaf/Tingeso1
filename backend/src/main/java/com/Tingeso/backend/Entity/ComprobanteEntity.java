@@ -1,14 +1,14 @@
 package com.Tingeso.backend.Entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "comprobantes")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class ComprobanteEntity {
     @Id
@@ -18,11 +18,12 @@ public class ComprobanteEntity {
     private float tarifabase;
     private float dctogrupo;
     private float dctoespecial;
+    private float dctocumple;
     private float precio;
     private float valoriva;
     private float preciofinal;
 
-    public ComprobanteEntity(float dctoespecial, float dctogrupo, long idreserva, float precio, float preciofinal, float tarifabase, float valoriva) {
+    public ComprobanteEntity(float dctocumple,float dctoespecial, float dctogrupo, long idreserva, float precio, float preciofinal, float tarifabase, float valoriva) {
         this.dctoespecial = dctoespecial;
         this.dctogrupo = dctogrupo;
         this.id = id;
@@ -31,5 +32,6 @@ public class ComprobanteEntity {
         this.preciofinal = preciofinal;
         this.tarifabase = tarifabase;
         this.valoriva = valoriva;
+        this.dctocumple = dctocumple;
     }
 }
