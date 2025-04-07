@@ -27,4 +27,5 @@ public class ReservaEntity {
         this.iduser = iduser;
         this.cantidadcumple = cantidadcumple;
     }
+
 }

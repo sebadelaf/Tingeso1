@@ -195,6 +195,7 @@ public class ReservaService {
         return 0f; // Sin descuento fuera del rango
     }
 
+    @Transactional
     public float calcularDescuentoEspecial(long iduser, float precioinicial) {
         UserEntity user = userRepository.findById(iduser)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + iduser));

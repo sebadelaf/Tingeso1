@@ -41,7 +41,6 @@ public class ComprobanteService {
         if (precioinicial <= 0) {
             throw new IllegalArgumentException("El precio inicial debe ser mayor que 0");
         }
-
         float tarifabase = precioinicial / reserva.getCantidadpersonas();
 
         float dctoespecial = reservaService.calcularDescuentoEspecial(reserva.getIduser(), precioinicial);
