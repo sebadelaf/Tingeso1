@@ -16,16 +16,19 @@ public class ReservaEntity {
     private String fechahora;
     private int tiporeserva;
     private int cantidadpersonas;
-    private Long iduser;
     private int cantidadcumple;
+    private String nombreusuario;
+    private String rutusuario;
+    private String email;
 
-    public ReservaEntity(String fechahora,int tiporeserva, int cantidadpersonas,Long iduser, int cantidadcumple) {
+    public ReservaEntity(int cantidadcumple, int cantidadpersonas, String email, String fechahora, String nombreusuario, String rutusuario, int tiporeserva) {
+        this.cantidadcumple = cantidadcumple;
+        this.cantidadpersonas = cantidadpersonas;
+        this.email = email;
         this.fechahora = fechahora;
         this.id = id;
+        this.nombreusuario = nombreusuario;
+        this.rutusuario = rutusuario;
         this.tiporeserva = tiporeserva;
-        this.cantidadpersonas = cantidadpersonas;
-        this.iduser = iduser;
-        this.cantidadcumple = cantidadcumple;
     }
-
 }

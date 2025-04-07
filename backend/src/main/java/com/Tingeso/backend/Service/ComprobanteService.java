@@ -43,7 +43,7 @@ public class ComprobanteService {
         }
         float tarifabase = precioinicial / reserva.getCantidadpersonas();
 
-        float dctoespecial = reservaService.calcularDescuentoEspecial(reserva.getIduser(), precioinicial);
+        float dctoespecial = reservaService.calcularDescuentoEspecial(reserva.getRutusuario(), precioinicial);
         float dctogrupo = reservaService.calcularDescuentoGrupo(reserva.getCantidadpersonas(), precioinicial);
         float dctocumple = reservaService.descuentoporcumpleano(reserva.getCantidadpersonas(), precioinicial, reserva.getCantidadcumple());
 

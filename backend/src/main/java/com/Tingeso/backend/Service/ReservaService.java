@@ -1,10 +1,7 @@
 package com.Tingeso.backend.Service;
 
-import com.Tingeso.backend.Entity.ComprobanteEntity;
 import com.Tingeso.backend.Entity.ReservaEntity;
-import com.Tingeso.backend.Entity.UserEntity;
 import com.Tingeso.backend.Repository.ReservaRepository;
-import com.Tingeso.backend.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +18,10 @@ import java.util.List;
 public class ReservaService {
     @Autowired
     public ReservaRepository reservaRepository;
-    @Autowired
-    public UserRepository userRepository;
 
     @Transactional
     // creador de la reserva segun los valores recibidos del formulario
-    public ReservaEntity crearReserva(String fechahora, int tiporeserva, int cantidadpersonas, Long iduser, int cantidadcumple) {
+    public ReservaEntity crearReserva(String fechahora, int tiporeserva, int cantidadpersonas, int cantidadcumple, String nombreusuario, String rutusuario, String email) {
         // Validaciones básicas existentes
         if (fechahora == null || fechahora.isEmpty()) {
             throw new IllegalArgumentException("La fecha y hora no pueden estar vacías");
@@ -34,8 +29,14 @@ public class ReservaService {
         if (tiporeserva < 0 || cantidadpersonas <= 0 || tiporeserva > 3) {
             throw new IllegalArgumentException("Tipo de reserva no puede ser negativo o mayor que 3 y cantidad de personas debe ser mayor a 0");
         }
-        if (iduser == null) {
-            throw new IllegalArgumentException("El ID del usuario no puede ser nulo");
+        if (nombreusuario == null || nombreusuario.isEmpty()) {
+            throw new IllegalArgumentException("El nombre de usuario no puede estar vacío");
+        }
+        if (rutusuario == null || rutusuario.isEmpty()) {
+            throw new IllegalArgumentException("El RUT de usuario no puede estar vacío");
+        }
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("El email no puede estar vacío");
         }
         if (cantidadcumple < 0) {
             throw new IllegalArgumentException("Cantidad de cumpleaños no puede ser negativa");
@@ -126,25 +127,17 @@ public class ReservaService {
         }
 
         // Crear y guardar la nueva reserva
-        ReservaEntity reserva = new ReservaEntity(fechahora, tiporeserva, cantidadpersonas, iduser, cantidadcumple);
+        ReservaEntity reserva = new ReservaEntity(
+                cantidadcumple,cantidadpersonas,email,fechahora,nombreusuario,rutusuario,tiporeserva
+        );
         reserva = reservaRepository.save(reserva);
-
-        // Actualizar las reservas del usuario
-        UserEntity user = userRepository.findById(iduser)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + iduser));
-        user.getIdreservasuser().add(reserva.getId());
-        userRepository.save(user);
-
         return reserva;
     }
 
     // metodo para obtener las reservas del usuario sera importante para verificar si este es fiel o no
     @Transactional
-    public List<ReservaEntity> obtenerReservasUsuario(long userId) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + userId));
-        List<Long> reservasIds = user.getIdreservasuser();
-        return reservaRepository.findAllById(reservasIds);
+    public List<ReservaEntity> obtenerReservasUsuario(String rutuser) {
+        return reservaRepository.findAllByRutusuario(rutuser);
     }
 
     // metodo para obtener el precio incial de la reserva en relacion a las tarifas especiales de dias feriados y fines de semana
@@ -196,11 +189,8 @@ public class ReservaService {
     }
 
     @Transactional
-    public float calcularDescuentoEspecial(long iduser, float precioinicial) {
-        UserEntity user = userRepository.findById(iduser)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + iduser));
-        List<ReservaEntity> reservas = obtenerReservasUsuario(iduser);
-
+    public float calcularDescuentoEspecial(String rutuser,float precioinicial) {
+        List<ReservaEntity> reservas = reservaRepository.findAllByRutusuario(rutuser);
         LocalDateTime ahora = LocalDateTime.now();
         int mesActual = ahora.getMonthValue();
         int anioActual = ahora.getYear();
