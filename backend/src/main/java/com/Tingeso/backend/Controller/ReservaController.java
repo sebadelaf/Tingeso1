@@ -4,6 +4,7 @@ import com.Tingeso.backend.DTO.DescuentoCumpleDTO;
 import com.Tingeso.backend.DTO.DescuentoEspecialDTO;
 import com.Tingeso.backend.DTO.DescuentoGrupoDTO;
 import com.Tingeso.backend.Entity.ReservaEntity;
+import com.Tingeso.backend.Repository.ReservaRepository;
 import com.Tingeso.backend.Service.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,8 @@ import java.util.List;
 public class ReservaController {
     @Autowired
     public ReservaService reservaService;
+    @Autowired
+    public ReservaRepository reservaRepository;
 
     // Controller CrearReserva
     @PostMapping("/crear")
@@ -39,5 +42,10 @@ public class ReservaController {
     @GetMapping("/calcularprecioinicial/{id}")
     public float calcularPrecioInicial(@PathVariable Long idreserva) {
         return reservaService.calcularprecioinicial(idreserva);
+    }
+
+    @GetMapping("/todas")
+    public List<ReservaEntity> obtenerreservas(){
+        return reservaRepository.findAll();
     }
 }

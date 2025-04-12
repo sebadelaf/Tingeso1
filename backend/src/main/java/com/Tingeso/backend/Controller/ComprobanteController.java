@@ -2,6 +2,7 @@ package com.Tingeso.backend.Controller;
 
 import com.Tingeso.backend.DTO.ReporteDTO;
 import com.Tingeso.backend.Entity.ComprobanteEntity;
+import com.Tingeso.backend.Entity.ReservaEntity;
 import com.Tingeso.backend.Repository.ComprobanteRepository;
 import com.Tingeso.backend.Service.ComprobanteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.util.List;
 public class ComprobanteController {
     @Autowired
     public ComprobanteService comprobanteService;
+
 
     @PostMapping("/crear/{idreserva}")
     public ComprobanteEntity crearcomprobante(@PathVariable long idreserva) {
@@ -35,4 +37,7 @@ public class ComprobanteController {
         String mesFin = reporteDTO.getMesfin();
         return comprobanteService.reporteporgrupo(mesInicio, mesFin);
     }
+
+
+
 }
