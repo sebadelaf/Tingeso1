@@ -144,9 +144,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ open, onClose, onSu
                <FormControl fullWidth margin="dense" required error={!!errors.tiporeserva}>
                     <InputLabel id="tipo-reserva-label">Tipo Reserva</InputLabel>
                     <Select labelId="tipo-reserva-label" label="Tipo Reserva" name="tiporeserva" value={formData.tiporeserva} onChange={handleChange as any} disabled={isSubmitting}>
-                        <MenuItem value={1}>Normal (30 min)</MenuItem>
-                        <MenuItem value={2}>Extendida (35 min)</MenuItem>
-                        <MenuItem value={3}>Premium (40 min)</MenuItem>
+                        <MenuItem value={1}>10 vueltas o 10 minutos</MenuItem>
+                        <MenuItem value={2}>15 vueltas o 15 minutos</MenuItem>
+                        <MenuItem value={3}>20 vueltas o 20 minutos</MenuItem>
                     </Select>
                     {errors.tiporeserva && <FormHelperText>{errors.tiporeserva}</FormHelperText>}
                 </FormControl>

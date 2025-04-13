@@ -26,7 +26,7 @@ function TabPanel(props: TabPanelProps) {
 function App() {
   const [tabIndex, setTabIndex] = React.useState(0);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 

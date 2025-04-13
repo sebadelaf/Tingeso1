@@ -2,11 +2,9 @@
 // useCallback, useMemo (para optimizaciones)
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 // Importamos componentes de react-big-calendar y sus tipos
-import { Calendar, Views, EventProps, SlotInfo } from 'react-big-calendar';
+import { Calendar, Views, SlotInfo } from 'react-big-calendar';
 // Importamos funciones de date-fns que usaremos para manipular fechas
-import { parse as parseDate, format as formatDate, addMinutes, getDay as getDayOfWeek, setHours, setMinutes, isWithinInterval, isBefore, isEqual } from 'date-fns';
-// Importamos el locale español para date-fns
-import {es} from 'date-fns/locale/es';
+import { parse as parseDate, format as formatDate, addMinutes, getDay as getDayOfWeek, setHours, setMinutes,  isBefore } from 'date-fns';
 import { useTheme } from '@mui/material/styles';
 import { Typography } from '@mui/material'
 // Importamos componentes de Material UI para la interfaz (layout, progreso, alertas)
@@ -19,6 +17,7 @@ import { fetchReservas, createReserva } from '../services/reservaService';
 import { ReservaEntity, CalendarEvent, ReservaFormInput } from '../types/reserva';
 // Importamos el componente del Modal (que crearemos en el siguiente paso)
 import ReservationModal from './modal';
+import ReservationDetailModal from './ReservationDetailModal'; // Importamos el nuevo modal
 // Importamos los estilos CSS base de react-big-calendar
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { createComprobante } from '../services/comprobanteService';
@@ -50,8 +49,9 @@ const isSlotAvailable = (slotStart: Date, existingEvents: CalendarEvent[]): bool
 
 // --- 3. Definición del Componente Funcional ---
 const BookingTab: React.FC = () => {
-const theme = useTheme();
-
+  const theme = useTheme();
+  const [detailModalOpen, setDetailModalOpen] = useState<boolean>(false);
+  const [selectedEventForDetail, setSelectedEventForDetail] = useState<ReservaEntity | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -203,12 +203,39 @@ const theme = useTheme();
     }
   }, [handleCloseModal]); // Mantenemos la dependencia
 
-  // N U E V O: Manejador para la navegación del calendario
-  const handleNavigate = useCallback((newDate: Date) => {
-      console.log("Navegando a:", newDate);
-      setCurrentDate(newDate); // Actualiza el estado con la nueva fecha
-      // Aquí iría la lógica futura para recargar eventos si fuera necesario
-  }, []); // No tiene dependencias, se crea una vez
+
+    const handleNavigate = useCallback((newDate: Date) => {
+        console.log("Navegando a:", newDate);
+        setCurrentDate(newDate); // Actualiza el estado con la nueva fecha
+        // Aquí iría la lógica futura para recargar eventos si fuera necesario
+    }, []); // No tiene dependencias, se crea una vez
+
+
+    // Dentro de BookingTab, junto a otros handlers
+
+  // --- N U E V O S: Manejadores para el Modal de Detalles ---
+  // Se llama cuando se hace clic en un evento existente en el calendario
+  const handleSelectEvent = useCallback((calendarEvent: CalendarEvent) => {
+    console.log("Evento seleccionado:", calendarEvent);
+    // Extraemos la reserva original que guardamos en 'resource'
+    const reservaSeleccionada = calendarEvent.resource as ReservaEntity | undefined;
+    if (reservaSeleccionada) {
+        setSelectedEventForDetail(reservaSeleccionada); // Guardamos la reserva para mostrar
+        setDetailModalOpen(true); // Abrimos el modal de detalles
+    } else {
+        console.warn("El evento seleccionado no tiene datos de reserva asociados.");
+        // Opcional: Mostrar un snackbar si falta 'resource'
+        // setSnackbar({ open: true, message: 'No se pudieron cargar los detalles para este evento.', severity: 'error' });
+    }
+    }, []); // No depende de estados externos que cambien frecuentemente
+
+    // Se llama para cerrar el modal de detalles
+    const handleCloseDetailModal = useCallback(() => {
+        setDetailModalOpen(false);
+        setSelectedEventForDetail(null); // Limpiamos la reserva seleccionada
+    }, []);
+    // ---------------------------------------------------------
+
 
   const slotPropGetter = useCallback((date: Date) => {
     // La función usa 'theme' y 'events' que están fuera de ella
@@ -224,10 +251,10 @@ const theme = useTheme();
     return { style: { borderTop: `1px solid ${theme.palette.divider}` } }; // Usa theme
   }, [events]); // <-- Quitamos 'theme', dejamos solo [events]
   
-  const eventPropGetter = useCallback((event: CalendarEvent, start: Date, end: Date, isSelected: boolean) => ({
+  const eventPropGetter = useCallback((_event: CalendarEvent, _start: Date, _end: Date, _isSelected: boolean) => ({
     // La función usa 'theme' que está fuera de ella
     style: {
-        backgroundColor: isSelected ? theme.palette.secondary.dark : theme.palette.primary.main, // Usa theme
+        backgroundColor:theme.palette.primary.main, // Usa theme
         borderRadius: '3px',
         opacity: 0.9,
         color: theme.palette.primary.contrastText, // Usa theme
@@ -250,6 +277,15 @@ const theme = useTheme();
 
   return (
     <Box sx={{ height: '80vh', p: 2 }}>
+      <Typography
+        variant="h6" // Tamaño del título (puedes usar 'subtitle1' si prefieres algo más pequeño)
+        component="h2" // Etiqueta semántica HTML
+        align="center" // Centrar el texto
+        gutterBottom // Añade un margen inferior
+        sx={{ mb: 2 }} // Margen inferior explícito si gutterBottom no es suficiente
+      >
+        Selecciona un horario disponible para iniciar tu reserva
+      </Typography>
       <Calendar
         localizer={localizer}
         events={events}
@@ -259,6 +295,7 @@ const theme = useTheme();
         views={[Views.WEEK]}
         selectable={true}
         onSelectSlot={handleSelectSlot}
+        onSelectEvent={handleSelectEvent} 
         style={{ height: '100%' }}
         culture='es'
         messages={{
@@ -286,6 +323,14 @@ const theme = useTheme();
             onSubmit={handleFormSubmit}
             initialDateTime={selectedSlot}
           />
+      )}
+
+      {selectedEventForDetail && (
+         <ReservationDetailModal
+            open={detailModalOpen}
+            onClose={handleCloseDetailModal}
+            reserva={selectedEventForDetail}
+         />
       )}
 
        <Snackbar

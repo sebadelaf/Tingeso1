@@ -349,6 +349,11 @@ public class ComprobanteService {
 
 
             document.add(infoTable);
+            Paragraph ifodscto= new Paragraph().add(new Text("El descuento aplicado es el mejor para usted!").setBold().setFontSize(12))
+                    .setTextAlignment(TextAlignment.LEFT)
+                    .setMarginBottom(20); // Add space below header
+            document.add(ifodscto);
+
 
             // ----- Pricing Details Table -----
             document.add(new Paragraph("Detalle de Precios:").setBold().setMarginBottom(5));
@@ -386,7 +391,6 @@ public class ComprobanteService {
             float subtotal = comprobante.getPreciofinal()-comprobante.getValoriva(); // Precio includes IVA as per your entity setup
             addPricingRow(pricingTable, "Subtotal (Neto)", subtotal, chileLocale);
             addPricingRow(pricingTable, "IVA (19%)", comprobante.getValoriva(), chileLocale); // Use 'iva' field
-
             // --- Total Row (Footer of the table) ---
             Cell totalLabelCell = new Cell(1, 1)
                     .add(new Paragraph("MONTO TOTAL A PAGAR").setBold())

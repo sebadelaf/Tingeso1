@@ -1,0 +1,28 @@
+# docker-compose.yml para KarRM (Backend + Frontend)
+# Versión simple: 1 instancia de cada uno (Referencia: Clase7 - Scenario 1)
+
+version: '3.8' # Especifica una versión de la sintaxis de Compose (opcional pero recomendado)
+
+services: # Define los contenedores (servicios) que componen tu aplicación
+
+  backend: # Nombre que le damos al servicio del backend dentro de Compose
+    build:
+      context: ./backend # Ruta a la carpeta que contiene el Dockerfile del backend
+      dockerfile: Dockerfile # Nombre del Dockerfile (por defecto)
+    image: sebadelaf10/backend:latest # Aún especifica el nombre de la imagen a usar/construir
+    ports:
+      - "8080:8080" # Mapea puerto_host:puerto_contenedor
+    environment:
+      # Variables de entorno para la conexión a la BD (como en docker run)
+      # Asegúrate que host.docker.internal funcione o usa la IP de tu host si es necesario
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/Tingeso
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=2507 # Considera usar secrets para producción
+
+  frontend: # Nombre que le damos al servicio del frontend
+    build:
+      context: ./frontend # Ruta a la carpeta que contiene el Dockerfile del frontend
+      dockerfile: Dockerfile
+    image: sebadelaf10/frontend:latest
+    ports:
+      - "8070:80" # Mapea puerto_host:puerto_contenedor_nginx

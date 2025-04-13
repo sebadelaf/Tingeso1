@@ -11,7 +11,7 @@ const theme = createTheme({
     mode: 'light',
     primary: {
       // Color principal (ej. un rojo para 'KarRM')
-      main: '#d32f2f', // Puedes buscar códigos hexadecimales de colores que te gusten
+      main: '#DC0000', // Puedes buscar códigos hexadecimales de colores que te gusten
     },
     secondary: {
       // Color secundario (ej. un gris oscuro)

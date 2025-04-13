@@ -8,7 +8,7 @@ import {
 import { fetchReportePorTipo, fetchReportePorGrupo } from '../services/comprobanteService';
 import { ReporteDTO,ReporteData } from '../types/reportes';
 // Importamos funciones de date-fns para manejar meses
-import { format as formatDate, parse as parseDate, eachMonthOfInterval, startOfMonth, endOfMonth, isValid } from 'date-fns';
+import { format as formatDate, parse as parseDate, eachMonthOfInterval, isValid } from 'date-fns';
 import { es } from 'date-fns/locale/es';
 
 // --- Componente Funcional ---
