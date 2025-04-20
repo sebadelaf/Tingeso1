@@ -218,7 +218,7 @@ public class ReservaService {
             if (cantidadpersonas>=3 && cantidadpersonas<=5){
                 dctocumple = tarifa*0.5f;
             }else if (cantidadpersonas>=6){
-                dctocumple = tarifa*0.5f*cantidadcumple;}
+                dctocumple = tarifa*0.5f*2;}
             return dctocumple;
         }
         return 0f;
