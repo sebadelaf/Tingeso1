@@ -1,30 +1,34 @@
-pipeline {
+pipeline{
     agent any
+    tools{
+        maven "maven"
 
-    tools {
-        maven "maven" // Asegúrate de tenerlo registrado así en Jenkins
     }
-
-    stages {
-        stage("Build JAR File") {
-            steps {
-                bat "mvn clean install -DskipTests"
+    stages{
+        stage("Build JAR File"){
+            steps{
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/sebadelaf/Tingeso1']])
+                dir("backend"){
+                    bat "mvn clean install"
+                }
             }
         }
-
-        stage("Test") {
-            steps {
-                bat "mvn test"
+        stage("Test"){
+            steps{
+                dir("backend"){
+                    bat "mvn test"
+                }
             }
-        }
-
-        stage("Build and Push Docker Image") {
-            steps {
-                script {
-                    withDockerRegistry([credentialsId: 'docker-credentials']) {
-                        bat "docker build -t sebadelaf10/backend:latest ."
-                        bat "docker push sebadelaf10/backend:latest"
-                    }
+        }        
+        stage("Build and Push Docker Image"){
+            steps{
+                dir("backend"){
+                    script{
+                         withDockerRegistry(credentialsId: 'docker-credentials'){
+                            bat "docker build -t sebadelaf10/backend:latest ."
+                            bat "docker push sebadelaf10/backend:latest"
+                        }
+                    }                    
                 }
             }
         }
