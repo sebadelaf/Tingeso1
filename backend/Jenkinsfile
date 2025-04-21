@@ -19,6 +19,11 @@ pipeline{
                     bat "mvn test"
                 }
             }
+        }
+        stage("Fix Docker Context") {
+            steps {
+                bat 'docker context use default'
+            }
         }        
         stage("Build and Push Docker Image"){
             steps{
