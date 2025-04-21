@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    tools {
+        maven "maven" // Asegúrate de tenerlo registrado así en Jenkins
+    }
+
+    stages {
+        stage("Build JAR File") {
+            steps {
+                bat "mvn clean install -DskipTests"
+            }
+        }
+
+        stage("Test") {
+            steps {
+                bat "mvn test"
+            }
+        }
+
+        stage("Build and Push Docker Image") {
+            steps {
+                script {
+                    withDockerRegistry([credentialsId: 'docker-credentials']) {
+                        bat "docker build -t sebadelaf10/backend:latest ."
+                        bat "docker push sebadelaf10/backend:latest"
+                    }
+                }
+            }
+        }
+    }
+}

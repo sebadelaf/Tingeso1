@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+
+    stages {
+        stage("Build Frontend") {
+            steps {
+                checkout scmGit(
+                    branches: [[name: '*/main']],
+                    extensions: [],
+                    userRemoteConfigs: [[url: 'https://github.com/sebadelaf/Tingeso1']]
+                )
+
+                bat "npm install"
+                bat "npm run build"
+            }
+        }
+
+        stage("Build and Push Docker Image") {
+            steps {
+                script {
+                    withDockerRegistry([credentialsId: 'docker-credentials']) {
+                        bat "docker build -t sebadelaf10/frontend:latest ."
+                        bat "docker push sebadelaf10/frontend:latest"
+                    }
+                }
+            }
+        }
+    }
+}
