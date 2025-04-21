@@ -28,7 +28,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/Tingeso
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=2507 # Considera usar secrets para producción
+      - SPRING_DATASOURCE_PASSWORD=1234 # Considera usar secrets para producción
     networks:
       - backend-network
 
@@ -37,7 +37,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/Tingeso
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=2507 # Considera usar secrets para producción
+      - SPRING_DATASOURCE_PASSWORD=1234 # Considera usar secrets para producción
     networks:
       - backend-network
 
@@ -46,7 +46,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/Tingeso
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=2507 # Considera usar secrets para producción
+      - SPRING_DATASOURCE_PASSWORD=1234 # Considera usar secrets para producción
     networks:
       - backend-network
   
@@ -82,4 +82,4 @@ services:
 # --- Definición de la Red Personalizada ---
 networks:
   frontend-network:
-  backend-network:
+  backend-network:  
