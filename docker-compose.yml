@@ -6,6 +6,20 @@ version: '3.8' # Especifica una versión de la sintaxis de Compose (opcional per
 #multiples instancias
 
 services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15
+    container_name: postgres_tingeso
+    environment:
+      POSTGRES_DB: Tingeso
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    networks:
+      - backend-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
   # Frontend services
   frontend1:
     image: sebadelaf10/frontend:latest
@@ -23,30 +37,31 @@ services:
       - frontend-network
 
   # Backend services
+  # Backend services
   backend1:
     image: sebadelaf10/backend:latest
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/Tingeso
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/Tingeso  # Cambié 'host.docker.internal' a 'postgres'
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=1234 # Considera usar secrets para producción
+      - SPRING_DATASOURCE_PASSWORD=1234
     networks:
       - backend-network
 
   backend2:
     image: sebadelaf10/backend:latest
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/Tingeso
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/Tingeso  # Cambié 'host.docker.internal' a 'postgres'
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=1234 # Considera usar secrets para producción
+      - SPRING_DATASOURCE_PASSWORD=1234
     networks:
       - backend-network
 
   backend3:
     image: sebadelaf10/backend:latest
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/Tingeso
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/Tingeso  # Cambié 'host.docker.internal' a 'postgres'
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=1234 # Considera usar secrets para producción
+      - SPRING_DATASOURCE_PASSWORD=1234
     networks:
       - backend-network
   
@@ -83,3 +98,6 @@ services:
 networks:
   frontend-network:
   backend-network:  
+# Volumes for Postgres data persistence
+volumes:
+  postgres_data:
