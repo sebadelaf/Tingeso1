@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { ReporteDTO, ReporteData } from '../types/reportes';
 // --- IMPORTANTE ---
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'; // ¡Verifica esta URL!
+const API_BASE_URL = 'http://52.191.57.93:8080'; // ¡Verifica esta URL!
 // ---------------------
 
 const apiClient = axios.create({

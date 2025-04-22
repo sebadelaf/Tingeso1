@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ReservaEntity, ReservaFormInput } from '../types/reserva';
 //direccion de mi backend
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
+const API_BASE_URL = 'http://52.191.57.93:8080';
 
 // Creamos una "instancia" de axios. Es como configurar un mensajero
 // que ya sabe a qué dirección base (API_BASE_URL) ir y que habla JSON.
