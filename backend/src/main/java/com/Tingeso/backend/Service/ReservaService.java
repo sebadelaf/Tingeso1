@@ -212,7 +212,7 @@ public class ReservaService {
     }
 
     public float descuentoporcumpleano(int cantidadpersonas, float precioinicial, int cantidadcumple) {
-        if (cantidadcumple>=0){
+        if (cantidadcumple>0){
             float dctocumple = 0;
             float tarifa=precioinicial/cantidadpersonas;
             if (cantidadpersonas>=3 && cantidadpersonas<=5){
