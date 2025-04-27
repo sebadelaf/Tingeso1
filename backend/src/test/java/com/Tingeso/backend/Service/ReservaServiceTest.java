@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.*; // Importa when, verify, etc.
+
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -232,5 +234,255 @@ class ReservaServiceTest {
 
         // Act & Assert
         assertEquals(0, reservaService.descuentoporcumpleano(2, 30000, 1), 0.01);
+    }
+
+    @Test
+    void testCrearReserva_Exito_FinDeSemana() {
+        // Arrange
+        String fechaHora = "2025-07-19T10:30"; // Sábado 10:30 AM (válido en finde)
+        when(reservaRepository.findAll()).thenReturn(new ArrayList<>());
+        when(reservaRepository.save(any(ReservaEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Act
+        ReservaEntity resultado = reservaService.crearReserva(fechaHora, 1, 2, 0, "User Finde", "444", "finde@test.com");
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(fechaHora, resultado.getFechahora());
+        verify(reservaRepository, times(1)).save(any(ReservaEntity.class));
+    }
+
+    @Test
+    void testCrearReserva_Falla_FueraDeHorario_FinDeSemana() {
+        // Arrange
+        String fechaHora = "2025-07-19T09:30"; // Sábado 9:30 AM (antes de las 10:00)
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservaService.crearReserva(fechaHora, 1, 2, 0, "User Madruga", "555", "madruga@test.com");
+        });
+        assertTrue(exception.getMessage().contains("La hora de inicio está fuera del horario de atención"));
+        verify(reservaRepository, never()).save(any(ReservaEntity.class));
+    }
+
+    @Test
+    void testCrearReserva_Falla_FormatoFechaInvalido() {
+        // Arrange
+        String fechaHoraInvalida = "15-07-2025T15:00"; // Formato DD-MM-YYYY en lugar de YYYY-MM-DD
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservaService.crearReserva(fechaHoraInvalida, 1, 2, 0, "User Malformato", "666", "bad@test.com");
+        });
+        assertTrue(exception.getMessage().contains("Formato de fecha y hora inválido"));
+        verify(reservaRepository, never()).save(any(ReservaEntity.class));
+    }
+
+    @Test
+    void testCrearReserva_Falla_TipoReservaInvalido() {
+        // Arrange
+        String fechaHora = "2025-07-15T15:00";
+        int tipoReservaInvalido = 4; // Mayor que 3
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservaService.crearReserva(fechaHora, tipoReservaInvalido, 2, 0, "User TipoX", "777", "tipox@test.com");
+        });
+        // La validación inicial debería atrapar esto
+        assertTrue(exception.getMessage().contains("Tipo de reserva no puede ser negativo o mayor que 3"));
+        verify(reservaRepository, never()).save(any(ReservaEntity.class));
+    }
+
+    @Test
+    void testCrearReserva_Falla_CantidadPersonasInvalida() {
+        // Arrange
+        String fechaHora = "2025-07-15T15:00";
+        int cantidadPersonasInvalida = 0; // Debe ser > 0
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservaService.crearReserva(fechaHora, 1, cantidadPersonasInvalida, 0, "User Cero", "888", "cero@test.com");
+        });
+        assertTrue(exception.getMessage().contains("cantidad de personas debe ser mayor a 0"));
+        verify(reservaRepository, never()).save(any(ReservaEntity.class));
+    }
+
+    // --- Tests Adicionales para calcularprecioinicial ---
+
+    @Test
+    void testCalcularPrecioInicial_Tipo3_FinDeSemana() {
+        // Arrange
+        long idReserva = 3L;
+        // Sábado, tipo 3, 5 personas
+        ReservaEntity reserva = new ReservaEntity(0, 5, "e@e.com", "2025-07-19T14:00", "User E", "333", 3);
+        when(reservaRepository.findById(idReserva)).thenReturn(Optional.of(reserva));
+        float precioBase = 25000 * 5; // 125000
+        float precioEsperado = precioBase - (0.15f * precioBase); // 15% descuento fin de semana
+
+        // Act
+        float precioCalculado = reservaService.calcularprecioinicial(idReserva);
+
+        // Assert
+        assertEquals(precioEsperado, precioCalculado, 0.01);
+        verify(reservaRepository, times(1)).findById(idReserva);
+    }
+
+    @Test
+    void testCalcularPrecioInicial_Tipo1_FeriadoYFinDeSemana() {
+        // Arrange
+        long idReserva = 4L;
+        // Viernes 1 Nov (Asumiendo que fuera feriado y finde - irreal, pero prueba la lógica)
+        // O usamos uno real: Sabado 19 de Sep (si Sep fuera Sabado) -> usemos Sabado 01-01-2028
+        // Sábado 1 Enero 2028 (Feriado y Fin de Semana), tipo 1, 2 personas
+        ReservaEntity reserva = new ReservaEntity(0, 2, "f@f.com", "2028-01-01T12:00", "User F", "444", 1);
+        when(reservaRepository.findById(idReserva)).thenReturn(Optional.of(reserva));
+        float precioBase = 15000 * 2; // 30000
+        // Aplica ambos descuentos secuencialmente según el código actual
+        float precioConDctoFeriado = precioBase - (0.25f * precioBase); // 30000 * 0.75 = 22500
+        float precioEsperado = precioConDctoFeriado - (0.15f * precioConDctoFeriado); // 22500 * 0.85 = 19125
+
+        // Act
+        float precioCalculado = reservaService.calcularprecioinicial(idReserva);
+
+        // Assert
+        assertEquals(precioEsperado, precioCalculado, 0.01);
+        verify(reservaRepository, times(1)).findById(idReserva);
+    }
+
+    // --- Tests para calcularDescuentoEspecial ---
+
+    private ReservaEntity crearReservaMesActual(String rut, int dia, int hora) {
+        LocalDateTime ahora = LocalDateTime.now();
+        // Asegurarse de que la fecha sea válida para el mes actual
+        LocalDateTime fechaReservaRaw = ahora.withDayOfMonth(1).withHour(hora).withMinute(0).withSecond(0).withNano(0).plusDays(dia - 1);
+        // Ajustar si el día calculado excede los días del mes
+        if (fechaReservaRaw.getMonthValue() != ahora.getMonthValue()) {
+            fechaReservaRaw = ahora.withDayOfMonth(1).withHour(hora).withMinute(0).withSecond(0).withNano(0).plusMonths(1).minusDays(1); // Último día del mes
+        }
+        String fechaHora = fechaReservaRaw.format(formatter);
+        return new ReservaEntity(0, 1, "test@test.com", fechaHora, "User", rut, 1);
+    }
+
+    @Test
+    void testCalcularDescuentoEspecial_SinReservasPrevias() {
+        // Arrange
+        String rut = "101";
+        float precioInicial = 10000f;
+        // Simulamos que no hay reservas para este RUT
+        when(reservaRepository.findAllByRutusuario(rut)).thenReturn(new ArrayList<>());
+
+        // Act
+        float descuento = reservaService.calcularDescuentoEspecial(rut, precioInicial);
+
+        // Assert
+        assertEquals(0f, descuento, 0.01); // Sin descuento (<= 1 reserva en mes)
+        verify(reservaRepository, times(1)).findAllByRutusuario(rut);
+    }
+
+    @Test
+    void testCalcularDescuentoEspecial_UnaReservaPrevia() {
+        // Arrange
+        String rut = "102";
+        float precioInicial = 10000f;
+        List<ReservaEntity> reservas = List.of(
+                crearReservaMesActual(rut, 5, 15) // Una reserva este mes
+        );
+        when(reservaRepository.findAllByRutusuario(rut)).thenReturn(reservas);
+
+        // Act
+        float descuento = reservaService.calcularDescuentoEspecial(rut, precioInicial);
+
+        // Assert
+        assertEquals(0f, descuento, 0.01); // Sin descuento (<= 1 reserva en mes)
+    }
+
+    @Test
+    void testCalcularDescuentoEspecial_TresReservasPrevias() {
+        // Arrange
+        String rut = "103";
+        float precioInicial = 10000f;
+        List<ReservaEntity> reservas = List.of(
+                crearReservaMesActual(rut, 2, 16),
+                crearReservaMesActual(rut, 8, 17),
+                crearReservaMesActual(rut, 15, 18) // 3 reservas este mes
+        );
+        when(reservaRepository.findAllByRutusuario(rut)).thenReturn(reservas);
+
+        // Act
+        float descuento = reservaService.calcularDescuentoEspecial(rut, precioInicial);
+
+        // Assert
+        assertEquals(precioInicial * 0.1f, descuento, 0.01); // 10% descuento (2-4 reservas)
+    }
+
+    @Test
+    void testCalcularDescuentoEspecial_CincoReservasPrevias() {
+        // Arrange
+        String rut = "104";
+        float precioInicial = 10000f;
+        List<ReservaEntity> reservas = List.of(
+                crearReservaMesActual(rut, 1, 10), crearReservaMesActual(rut, 2, 11),
+                crearReservaMesActual(rut, 3, 12), crearReservaMesActual(rut, 4, 13),
+                crearReservaMesActual(rut, 5, 14) // 5 reservas este mes
+        );
+        when(reservaRepository.findAllByRutusuario(rut)).thenReturn(reservas);
+
+        // Act
+        float descuento = reservaService.calcularDescuentoEspecial(rut, precioInicial);
+
+        // Assert
+        assertEquals(precioInicial * 0.2f, descuento, 0.01); // 20% descuento (5-6 reservas)
+    }
+
+    @Test
+    void testCalcularDescuentoEspecial_SieteReservasPrevias() {
+        // Arrange
+        String rut = "105";
+        float precioInicial = 10000f;
+        List<ReservaEntity> reservas = List.of(
+                crearReservaMesActual(rut, 1, 10), crearReservaMesActual(rut, 2, 11),
+                crearReservaMesActual(rut, 3, 12), crearReservaMesActual(rut, 4, 13),
+                crearReservaMesActual(rut, 5, 14), crearReservaMesActual(rut, 6, 15),
+                crearReservaMesActual(rut, 7, 16) // 7 reservas este mes
+        );
+        when(reservaRepository.findAllByRutusuario(rut)).thenReturn(reservas);
+
+        // Act
+        float descuento = reservaService.calcularDescuentoEspecial(rut, precioInicial);
+
+        // Assert
+        assertEquals(precioInicial * 0.3f, descuento, 0.01); // 30% descuento ( > 6 reservas)
+    }
+
+
+    // --- Tests Adicionales/Completos para descuentoporcumpleano ---
+
+    @Test
+    void testDescuentoPorCumpleano_CasosCompletos() {
+        // Arrange
+        float precioIniBajo = 30000f; int persBajo = 2; float tarifaBajo = precioIniBajo / persBajo; // 15000
+        float precioIniMedio = 60000f; int persMedio = 4; float tarifaMedio = precioIniMedio / persMedio; // 15000
+        float precioIniAlto = 120000f; int persAlto = 8; float tarifaAlto = precioIniAlto / persAlto; // 15000
+
+        // Act & Assert
+        // Grupo < 3 personas
+        assertEquals(0f, reservaService.descuentoporcumpleano(persBajo, precioIniBajo, 0), 0.01, "Grupo < 3, 0 cumple");
+        assertEquals(0f, reservaService.descuentoporcumpleano(persBajo, precioIniBajo, 1), 0.01, "Grupo < 3, 1 cumple");
+
+        // Grupo 3-5 personas
+        assertEquals(0f, reservaService.descuentoporcumpleano(persMedio, precioIniMedio, 0), 0.01, "Grupo 3-5, 0 cumple");
+        assertEquals(tarifaMedio * 0.5f, reservaService.descuentoporcumpleano(persMedio, precioIniMedio, 1), 0.01, "Grupo 3-5, 1 cumple");
+        assertEquals(tarifaMedio * 0.5f, reservaService.descuentoporcumpleano(persMedio, precioIniMedio, 3), 0.01, "Grupo 3-5, >1 cumple (solo 1 dcto)");
+
+        // Grupo >= 6 personas
+        assertEquals(0f, reservaService.descuentoporcumpleano(persAlto, precioIniAlto, 0), 0.01, "Grupo >=6, 0 cumple");
+        // ¡OJO! La lógica actual multiplica por 2 FIJO, no por cantidadcumple > 1
+        assertEquals(tarifaAlto * 0.5f * 2, reservaService.descuentoporcumpleano(persAlto, precioIniAlto, 1), 0.01, "Grupo >=6, 1 cumple (ERROR LOGICA ACTUAL?)");
+        assertEquals(tarifaAlto * 0.5f * 2, reservaService.descuentoporcumpleano(persAlto, precioIniAlto, 2), 0.01, "Grupo >=6, 2 cumple (logica actual * 2)");
+        assertEquals(tarifaAlto * 0.5f * 2, reservaService.descuentoporcumpleano(persAlto, precioIniAlto, 5), 0.01, "Grupo >=6, >2 cumple (logica actual * 2)");
+
+        // Caso cantidadcumple negativo (aunque validado antes, probamos el método aislado)
+        //assertEquals(0f, reservaService.descuentoporcumpleano(persAlto, precioIniAlto, -1), 0.01); // El if(cantidadcumple>0) lo maneja
+
     }
 }
