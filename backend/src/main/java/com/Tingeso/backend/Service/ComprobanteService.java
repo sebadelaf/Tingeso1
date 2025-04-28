@@ -284,7 +284,7 @@ public class ComprobanteService {
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, true);
 
             helper.setTo(destinatario);
-            helper.setSubject("🏎️ Comprobante de tu reserva en KartingRM");
+            helper.setSubject("🏎️ Comprobante de tu reserva en KartingGO");
             helper.setText("Hola! Adjunto encontrarás el comprobante de tu reserva. ¡Gracias por reservar!");
 
             helper.addAttachment("Comprobante.pdf", new ByteArrayResource(pdfBytes));

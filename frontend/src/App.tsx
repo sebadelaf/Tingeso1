@@ -55,7 +55,7 @@ function App() {
             component="div" // Renderiza como un div
             sx={{ flexGrow: 1 }} // Hace que ocupe el espacio restante, empujando otros elementos a la derecha
           >
-            KarRM
+            KartingGO
           </Typography>
           {/* Aquí podrías añadir otros botones o elementos a la derecha si quisieras */}
           {/* <Button color="inherit">Login</Button> */}

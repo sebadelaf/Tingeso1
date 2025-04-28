@@ -123,24 +123,24 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ open, onClose, onSu
         <DialogContent> {/* Cuerpo del modal */}
           <Grid container spacing={2}> {/* Grid para layout */}
             {/* Campo Fecha/Hora (solo lectura) */}
-            <Grid>
+            <Grid size={5}>
                  <TextField label="Fecha y Hora Seleccionada"
                     value={formData.fechahora ? formatDate(parseDate(formData.fechahora, API_DATE_FORMAT, new Date()), 'dd/MM/yyyy HH:mm') : ''}
                     InputProps={{ readOnly: true }} fullWidth margin="dense" error={!!errors.fechahora} helperText={errors.fechahora} />
             </Grid>
             {/* Campos Nombre y RUT (mitad y mitad en pantallas medianas/grandes) */}
-            <Grid >
+            <Grid size={5}>
               <TextField label="Nombre Usuario" name="nombreusuario" value={formData.nombreusuario} onChange={handleChange} fullWidth required margin="dense" error={!!errors.nombreusuario} helperText={errors.nombreusuario} disabled={isSubmitting} />
             </Grid>
-            <Grid>
+            <Grid size={5}>
               <TextField label="RUT Usuario" name="rutusuario" value={formData.rutusuario} onChange={handleChange} fullWidth required margin="dense" error={!!errors.rutusuario} helperText={errors.rutusuario} disabled={isSubmitting} />
             </Grid>
             {/* Campo Email (ancho completo) */}
-            <Grid>
+            <Grid size={5}>
               <TextField label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth required margin="dense" error={!!errors.email} helperText={errors.email} disabled={isSubmitting} />
             </Grid>
             {/* Fila para Tipo Reserva, Cantidad Personas, Cantidad Cumpleaños (un tercio cada uno) */}
-            <Grid>
+            <Grid size={5}>
                <FormControl fullWidth margin="dense" required error={!!errors.tiporeserva}>
                     <InputLabel id="tipo-reserva-label">Tipo Reserva</InputLabel>
                     <Select labelId="tipo-reserva-label" label="Tipo Reserva" name="tiporeserva" value={formData.tiporeserva} onChange={handleChange as any} disabled={isSubmitting}>
@@ -151,7 +151,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ open, onClose, onSu
                     {errors.tiporeserva && <FormHelperText>{errors.tiporeserva}</FormHelperText>}
                 </FormControl>
             </Grid>
-            <Grid>
+            <Grid size={5}>
               <TextField 
               label="Cantidad Personas" name="cantidadpersonas" type="number" value={formData.cantidadpersonas} onChange={handleChange} 
               fullWidth required margin="dense"   InputProps={{
@@ -159,10 +159,10 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ open, onClose, onSu
                     min: 1,
                     max: 15 // <-- AÑADIDO: Límite máximo
                 }
-            }} error={!!errors.cantidadpersonas} helperText={errors.cantidadpersonas} disabled={isSubmitting} />
+            }} error={!!errors.cantidadpersonas} helperText={errors.cantidadpersonas ?? "desde 1 hasta 15 personas"} disabled={isSubmitting} />
             </Grid>
-             <Grid>
-              <TextField label="Nº Cumpleaños" name="cantidadcumple" type="number" value={formData.cantidadcumple} onChange={handleChange} fullWidth required margin="dense" InputProps={{ inputProps: { min: 0 } }} error={!!errors.cantidadcumple} helperText={errors.cantidadcumple ?? "Personas del grupo de cumpleaños"} disabled={isSubmitting} />
+             <Grid size={5}>
+              <TextField label="Nº Cumpleaños" name="cantidadcumple" type="number" value={formData.cantidadcumple} onChange={handleChange} fullWidth required margin="dense" InputProps={{ inputProps: { min: 0 } }} error={!!errors.cantidadcumple} helperText={errors.cantidadcumple ?? "Personas del grupo que estan de cumpleaños"} disabled={isSubmitting} />
              </Grid>
              {/* Mostramos un spinner si se está enviando */}
               {isSubmitting && (

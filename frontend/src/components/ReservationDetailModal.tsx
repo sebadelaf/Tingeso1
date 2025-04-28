@@ -81,16 +81,12 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({ open, o
             </ListItem>
         </List>
 
-         {/* Podrías añadir aquí información del comprobante si la tuvieras */}
-         {/* Por ejemplo, haciendo otra llamada a la API para buscar el comprobante por reserva.id */}
-
       </DialogContent>
       <Divider />
       <DialogActions sx={{ justifyContent: 'center', p: 1.5 }}>
         <Button onClick={onClose} variant="outlined" color="secondary">
           Cerrar
         </Button>
-         {/* Podrías añadir un botón para "Cancelar Reserva" aquí si implementas esa funcionalidad */}
       </DialogActions>
     </Dialog>
   );
