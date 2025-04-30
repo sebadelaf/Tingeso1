@@ -118,7 +118,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ open, onClose, onSu
   return (
     // Componente Dialog de MUI, controla la visibilidad con 'open' y el cierre con 'onClose'
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Crear Nueva Reserva</DialogTitle> {/* Título */}
+      <DialogTitle textAlign={"center"}>Crear Nueva Reserva</DialogTitle>
       <form onSubmit={handleSubmit}> {/* Envolvemos en <form> para usar onSubmit */}
         <DialogContent> {/* Cuerpo del modal */}
           <Grid container spacing={2}> {/* Grid para layout */}

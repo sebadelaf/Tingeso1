@@ -57,8 +57,6 @@ function App() {
           >
             KartingGO
           </Typography>
-          {/* Aquí podrías añadir otros botones o elementos a la derecha si quisieras */}
-          {/* <Button color="inherit">Login</Button> */}
         </Toolbar>
       </AppBar>
       {/* --- Fin Barra de Navegación --- */}
