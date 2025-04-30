@@ -208,7 +208,7 @@ const ReportTab: React.FC = () => {
       {/* --- Sección Reporte por Grupo --- */}
        {!loading && reporteGrupoData && monthHeaders.length > 0 && (
          <Box>
-            <Typography variant="h6" gutterBottom>Reporte por Tamaño de Grupo</Typography>
+            <Typography variant="h6" gutterBottom>Reporte por Numero de personas</Typography>
             <TableContainer component={Paper} elevation={3}>
              <Table stickyHeader size="small" aria-label="reporte por grupo">
                <TableHead>
